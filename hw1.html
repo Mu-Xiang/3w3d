@@ -1,0 +1,78 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="html, css, javascript">
+    <meta name="author" content="MuXiang">
+    <title>hw1</title>
+    <style type="text/css">
+        .centerContainer {
+            position: absolute;
+            left: 0;
+            right: 0;
+            margin: 0 auto;
+            height: 85vh;
+            width: 85vh;
+        }
+    </style>
+</head>
+
+<body style="background-color: rgb(255, 255, 220);">
+    <a href="index.html" style="text-decoration: none">
+        <p style="text-align: center; font-size: 44px; font-weight: bold; color:rgb(20, 170, 120); margin: 2vh;">
+            HW1 Xmas Lights
+        </p>
+    </a>
+    <img src="XmasTree.jpg" class="centerContainer" style="display: block;">
+    <div id="tree" class="centerContainer">
+        <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+        <script type="text/javascript">
+            class Light {
+                constructor() {
+                    this.name = "Light" + Light.id++;
+                    this.flick = false;
+                    this.lightOn = 60 + Math.random() * 30 + '%';
+                    this.lightOff = 10 + Math.random() * 20 + '%';
+                    this.lightSaturation = 85 + Math.random() * 10 + '%';
+
+                    let el = document.createElement("div");
+                    el.id = this.name;
+                    let tree = document.getElementById("tree");
+                    tree.appendChild(el);
+                    this.color = Math.random() * 360;
+
+                    el.setAttribute("style", `background-color: hsl(${this.color}, ${this.lightSaturation}, ${this.lightOn}); height:4vh; width:4vh; border-radius:50%;`);
+                    el.style.position = "absolute";
+                    let verticalComponent = Math.random();
+                    el.style.top = 10 + verticalComponent * 75 + '%';
+                    el.style.left = (Light.id % 2 === 1) ? 50 + verticalComponent * 25 * Math.random() + '%': 50 - verticalComponent * 25 * Math.random() + '%';
+                }
+
+                toggleLight() {
+                    this.flick = !this.flick;
+                    if (this.flick === true) {
+                        $('#' + this.name).css('backgroundColor', `hsl(${this.color}, ${this.lightSaturation}, ${this.lightOn})`);
+                    } else {
+                        $('#' + this.name).css('backgroundColor', `hsl(${this.color}, ${this.lightSaturation}, ${this.lightOff})`);
+                    }
+                }
+
+                startBlink() {
+                    var that = this;
+                    setInterval(function () {
+                        that.toggleLight();
+                    }, 500);
+                }
+            }
+
+            Light.id = 1;
+            for (let i = 0; i < 20; i++) {
+                let nl = new Light();
+                nl.startBlink();
+            }
+        </script>
+    </div>
+</body>
+
+</html>
