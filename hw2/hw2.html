@@ -1,0 +1,120 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="html, css, javascript">
+    <meta name="author" content="MuXiang">
+    <title>hw1</title>
+    <style type="text/css">
+        div.block{
+            height: 100%;
+            width: 45%;
+            margin: 8px 16px;
+            background-color: lightgray;
+            border-radius: 5px;
+        }
+        p.insideBlock{
+            font-size: 1.3em;
+            padding: 10px 12px 2px 20px;
+            margin: 4px;
+        }
+    </style>
+</head>
+
+<body style="background-color: rgb(255, 255, 220);">
+    <a href="../index.html" style="text-decoration: none">
+        <p style="text-align: center; font-size: 44px; font-weight: bold; color:rgb(20, 170, 120); margin: 2vh;">
+            HW2 HTML Input & Vector3 API
+        </p>
+    </a>
+    <hr>
+    <div style="height: 200px; width: 800px; margin: 0 auto;">
+        <div class="block" style="float: left;">
+            <p class="insideBlock">V</p>
+            <hr>
+            <p class="insideBlock">X : 
+                <input id="vx" style="height: 26px;" value="0"></input>
+            </p>
+            <p class="insideBlock">Y : 
+                <input id="vy" style="height: 26px;" value="0"></input>
+            </p>
+            <p class="insideBlock">Z : 
+                <input id="vz" style="height: 26px;" value="0"></input>
+            </p>
+        </div>
+        <div class="block" style="float: right;">
+            <p class="insideBlock">W</p>
+            <hr>
+            <p class="insideBlock">X : 
+                <input id="wx" style="height: 26px;" value="0"></input>
+            </p>
+            <p class="insideBlock">Y : 
+                <input id="wy" style="height: 26px;" value="0"></input>
+            </p>
+            <p class="insideBlock">Z : 
+                <input id="wz" style="height: 26px;" value="0"></input>
+            </p>
+        </div>
+    </div>
+    <div style="height: 300px; width: 770px; margin: 20px auto; background-color: lightgray; border-radius: 5px;">
+        <p class="insideBlock">inner product & outer product
+            <hr>
+            <div style="width: 50%; float: left;">
+                <p class="insideBlock">V · W : 
+                    <input id="vw" style="height: 26px;" value="0"></input>
+                </p>
+            </div>
+        
+            <div style="width: 50%; float: right;">
+                <p class="insideBlock" style="margin-left: 25px;">V × W : </p>
+                <p class="insideBlock" style="margin-left: 25px;"> X : 
+                    <input id="vXwx" style="height: 26px;" value="0"></input>
+                </p>
+                <p class="insideBlock" style="margin-left: 25px;"> Y : 
+                    <input id="vXwy" style="height: 26px;" value="0"></input>
+                </p>
+                <p class="insideBlock" style="margin-left: 25px;"> Z : 
+                    <input id="vXwz" style="height: 26px;" value="0"></input>
+                </p>
+            </div>
+        </p>
+    </div>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="https://threejs.org/build/three.min.js"></script>
+    <script type="text/javascript">
+        $('#vw, #vXwx, #vXwy, #vXwz').attr('disabled','disabled');
+
+        $('#vx').change(function() {
+            if ($('#vx').val().length == 0 || !$.isNumeric($('#vx').val())) $('#vx').val(0);
+        });
+        $('#vy').change(function() {
+            if ($('#vy').val().length == 0 || !$.isNumeric($('#vy').val())) $('#vy').val(0);
+        });
+        $('#vz').change(function() {
+            if ($('#vz').val().length == 0 || !$.isNumeric($('#vz').val())) $('#vz').val(0);
+        });
+        $('#wx').change(function() {
+            if ($('#wx').val().length == 0 || !$.isNumeric($('#wx').val())) $('#wx').val(0);
+        });
+        $('#wy').change(function() {
+            if ($('#wy').val().length == 0 || !$.isNumeric($('#wy').val())) $('#wy').val(0);
+        });
+        $('#wz').change(function() {
+            if ($('#wz').val().length == 0 || !$.isNumeric($('#wz').val())) $('#wz').val(0);
+        });
+
+        $('#vx, #vy, #vz, #wx, #wy, #wz').change(function() {
+            let v = new THREE.Vector3($('#vx').val(), $('#vy').val(), $('#vz').val());
+            let w = new THREE.Vector3($('#wx').val(), $('#wy').val(), $('#wz').val());
+            
+            $('#vw').val(v.clone().dot(w));
+            $('#vXwx').val(v.clone().cross(w).x);
+            $('#vXwy').val(v.clone().cross(w).y);
+            $('#vXwz').val(v.clone().cross(w).z);
+        });
+        
+    </script>
+</body>
+
+</html>
