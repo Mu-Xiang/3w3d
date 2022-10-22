@@ -3,8 +3,7 @@
 
 -----
 
-## HW1
-### Christmas lights with HTML & CSS
+## HW1 Christmas lights with HTML & CSS
 
 ***目前功能 :***
 
@@ -16,8 +15,7 @@ __( Done )__
 
 -----
 
-## HW2
-### HTML Input & Vector3 API
+## HW2 HTML Input & Vector3 API
 
 ***目前功能 :***
 
@@ -29,8 +27,7 @@ __( Done )__
 
 -----
 
-## HW3
-### 室內設計模型 I
+## HW3 室內設計模型 I
 
 ***目前功能 :***
 
@@ -40,7 +37,6 @@ __( Done )__
 - [ ] 材質
 - [ ] 視角
 - [ ] 燈光
-- [ ] 
 
 __( Undone )__
 
