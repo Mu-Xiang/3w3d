@@ -7,7 +7,9 @@
     <meta name="author" content="MuXiang">
     <title>hw3</title>
 	<style type="text/css">
-		
+		#content {
+
+        }
 	</style>
 </head>
 
@@ -18,6 +20,109 @@
         </p>
     </a>
     <hr>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="https://threejs.org/build/three.min.js"></script>
+    <script type="text/javascript" src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+    <script type="text/javascript">javascript: (function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = 'https://mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); })()</script>
+
+    <div style="text-align:center; margin: 4vh 4vw;">
+        <canvas id="content" width=1080 height=720></canvas>
+    </div>
+    
+    <script type="text/javascript">
+        
+        var scene, renderer, camera;
+
+        class Wall {
+            constructor(width, height, x, y, z, rotationX, rotationY, rotationZ) {
+                //let wallTexture = new THREE.TextureLoader().load('models/texture/Wall.jpg');
+                let wallMaterial = new THREE.MeshBasicMaterial({color: 0xeeeecc, side:THREE.DoubleSide});
+                //let mesh = new THREE.Mesh(wallTexture, wallMaterial);
+                let mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), wallMaterial);
+                mesh.position.set(x, y, z);
+                mesh.rotation.x = Math.PI * rotationX;
+                mesh.rotation.y = Math.PI * rotationY;
+                if (rotationZ) mesh.rotation.z = Math.PI * rotationZ;
+                scene.add(mesh);
+                return mesh;
+            }
+        }
+        
+        class Light {
+
+        }
+
+        class Painting {
+
+        }
+
+        init();
+        animate();
+
+        function init() {
+            // scene
+            scene = new THREE.Scene();
+
+            let gridXZ = new THREE.GridHelper(200, 20, 'yellow', 'white');
+            scene.add(gridXZ);
+            let axes = new THREE.AxesHelper(40);
+            scene.add(axes);
+
+            // renderer
+            let cv = document.getElementById('content');
+            renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                canvas: cv
+            });
+            renderer.setSize(cv.width, cv.height);
+            renderer.setClearColor(0x888888);
+
+            // camera
+            camera = new THREE.PerspectiveCamera(50, cv.width / cv.height, 1, 1000);
+            camera.position.set(140, 180);
+            camera.position.z = 250;
+
+            let controls = new THREE.OrbitControls(camera, cv);
+
+            // floor (need to be on a server)
+            let floorTexture = new THREE.TextureLoader().load('models/texture/floor.jpg');
+            let floorMaterial = new THREE.MeshBasicMaterial({map: floorTexture, side: THREE.DoubleSide});
+			var floor = new THREE.Mesh(new THREE.PlaneGeometry(160, 160), floorMaterial);
+		    floor.position.y = 0.0;
+		    floor.rotation.x = - Math.PI / 2;
+			floor.receiveShadow = true;
+			scene.add(floor);
+            
+            //wall outside (+z:s, -z:n, +x:e, -x:w)
+            wallSL = new Wall(70, 40, -45, 20, 80, 0, 0, 0);
+            wallSR = new Wall(70, 40, 45, 20, 80, 0, 0, 0);
+            wallN = new Wall(160, 40, 0, 20, -80, 0, 0, 0);
+            wallE = new Wall(160, 40, 80, 20, 0, 0, 0.5, 0);
+            wallW = new Wall(160, 40, -80, 20, 0, 0, 0.5, 0);
+            //wall left
+            wallL = new Wall(90, 40, -30, 20, 15, 0, 0.5, 0);
+            //wall top-left
+            wallTL = new Wall(90, 40, -35, 20, -30, 0, 0, 0);
+            //wall top-right
+            wallTRL = new Wall(100, 40, 30, 20, -30, 0, 0.5, 0);
+            wallTRBL = new Wall(20, 40, 40, 20, 20, 0, 0, 0);
+            wallTRBR = new Wall(20, 40, 70, 20, 20, 0, 0, 0);
+            //wall button-right
+            wallBR = new Wall(90, 40, 35, 20, 40, 0, 0, 0);
+            //wall center
+            wallCT = new Wall(20, 40, 0, 20, -10, 0, 0, 0);
+            wallCL = new Wall(30, 40, -10, 20, 5, 0, 0.5, 0);
+            wallCR = new Wall(30, 40, 10, 20, 5, 0, 0.5, 0);
+        }
+
+        function animate() {
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+
+    </script>
+
+
 </body>
 
 </html>
