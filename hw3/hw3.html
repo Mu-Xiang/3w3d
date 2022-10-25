@@ -37,7 +37,7 @@
             constructor(width, height, depth, x, y, z, rotationX, rotationY, rotationZ) {
                 //let wallTexture = new THREE.TextureLoader().load('models/texture/Wall.jpg');
                 let wallGeometry = new THREE.BoxGeometry(width + depth, height, depth);
-                let wallMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc, side: THREE.DoubleSide});
+                let wallMaterial = new THREE.MeshBasicMaterial({color: 0xbbbbbb, side: THREE.DoubleSide});
                 let mesh = new THREE.Mesh(wallGeometry, wallMaterial);
                 mesh.position.set(x, y, z);
                 mesh.rotation.x = Math.PI * rotationX;
@@ -50,7 +50,7 @@
             constructor(width, height, depth, x, y, z, rotation=false) {
                 let chairTexture = new THREE.TextureLoader().load('models/texture/chair.jpg');
                 let chairGeometry = new THREE.BoxGeometry(width - depth, height, depth);
-                let chairMaterial = new THREE.MeshBasicMaterial({map: chairTexture, side: THREE.DoubleSide});
+                let chairMaterial = new THREE.MeshPhysicalMaterial({map: chairTexture, side: THREE.DoubleSide});
                 let meshT = new THREE.Mesh(chairGeometry, chairMaterial);
                 meshT.position.set(x, y, z);
                 meshT.rotation.x = Math.PI * 0.5;
@@ -75,6 +75,15 @@
                 scene.add(meshT);
                 scene.add(meshL);
                 scene.add(meshR);
+
+                // light
+                let pointLight = new THREE.PointLight(0xffffc0, 1, 250);
+                pointLight.position.set(x, 150, z);
+                scene.add(pointLight);
+
+                let sphereSize = 5;
+                let pointLightHelper = new THREE.PointLightHelper(pointLight, sphereSize);
+                scene.add(pointLightHelper);
             }
         }
         
@@ -109,8 +118,7 @@
 
             // camera
             camera = new THREE.PerspectiveCamera(75, cv.width / cv.height, 1, 2000);
-            camera.position.set(480, 720);
-            camera.position.z = 960;
+            camera.position.set(200, 440, 420);
 
             let controls = new THREE.OrbitControls(camera, cv);
 
@@ -121,7 +129,7 @@
 
             // floor (need to be on a server)
             let floorTexture = new THREE.TextureLoader().load('models/texture/floor.jpg');
-            let floorMaterial = new THREE.MeshBasicMaterial({map: floorTexture, side: THREE.DoubleSide});
+            let floorMaterial = new THREE.MeshLambertMaterial({map: floorTexture, side: THREE.DoubleSide});
 			var floor = new THREE.Mesh(new THREE.PlaneGeometry(640, 640), floorMaterial);
 		    floor.position.y = 0.0;
 		    floor.rotation.x = - Math.PI / 2;
