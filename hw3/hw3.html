@@ -34,21 +34,51 @@
         var scene, renderer, camera;
 
         class Wall {
-            constructor(width, height, x, y, z, rotationX, rotationY, rotationZ) {
+            constructor(width, height, depth, x, y, z, rotationX, rotationY, rotationZ) {
                 //let wallTexture = new THREE.TextureLoader().load('models/texture/Wall.jpg');
-                let wallMaterial = new THREE.MeshBasicMaterial({color: 0xeeeecc, side:THREE.DoubleSide});
-                //let mesh = new THREE.Mesh(wallTexture, wallMaterial);
-                let mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), wallMaterial);
+                let wallGeometry = new THREE.BoxGeometry(width + depth, height, depth);
+                let wallMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc, side: THREE.DoubleSide});
+                let mesh = new THREE.Mesh(wallGeometry, wallMaterial);
                 mesh.position.set(x, y, z);
                 mesh.rotation.x = Math.PI * rotationX;
                 mesh.rotation.y = Math.PI * rotationY;
                 if (rotationZ) mesh.rotation.z = Math.PI * rotationZ;
                 scene.add(mesh);
-                return mesh;
+            }
+        }
+        class Chair {
+            constructor(width, height, depth, x, y, z, rotation=false) {
+                let chairTexture = new THREE.TextureLoader().load('models/texture/chair.jpg');
+                let chairGeometry = new THREE.BoxGeometry(width - depth, height, depth);
+                let chairMaterial = new THREE.MeshBasicMaterial({map: chairTexture, side: THREE.DoubleSide});
+                let meshT = new THREE.Mesh(chairGeometry, chairMaterial);
+                meshT.position.set(x, y, z);
+                meshT.rotation.x = Math.PI * 0.5;
+                if (rotation) meshT.rotation.z = Math.PI * 0.5;
+
+                let chairLegGeometry = new THREE.BoxGeometry(height, y, depth);
+                let meshL = new THREE.Mesh(chairLegGeometry, chairMaterial);
+                if (!rotation) {
+                    meshL.position.set(x + width / 2 - depth, y / 2, z);
+                    meshL.rotation.y = Math.PI * 0.5;
+                } else {
+                    meshL.position.set(x, y / 2, z + width / 2 - depth);
+                }
+                let meshR = new THREE.Mesh(chairLegGeometry, chairMaterial);
+                if (!rotation) {
+                    meshR.position.set(x - width / 2 + depth, y / 2, z);
+                    meshR.rotation.y = Math.PI * 0.5;
+                } else {
+                    meshR.position.set(x, y / 2, z - width / 2 + depth);
+                }
+
+                scene.add(meshT);
+                scene.add(meshL);
+                scene.add(meshR);
             }
         }
         
-        class Light {
+        class Lamp   {
 
         }
 
@@ -63,9 +93,9 @@
             // scene
             scene = new THREE.Scene();
 
-            let gridXZ = new THREE.GridHelper(200, 20, 'yellow', 'white');
+            let gridXZ = new THREE.GridHelper(800, 40, 'yellow', 'white');
             scene.add(gridXZ);
-            let axes = new THREE.AxesHelper(40);
+            let axes = new THREE.AxesHelper(160);
             scene.add(axes);
 
             // renderer
@@ -78,41 +108,58 @@
             renderer.setClearColor(0x888888);
 
             // camera
-            camera = new THREE.PerspectiveCamera(50, cv.width / cv.height, 1, 1000);
-            camera.position.set(140, 180);
-            camera.position.z = 250;
+            camera = new THREE.PerspectiveCamera(75, cv.width / cv.height, 1, 2000);
+            camera.position.set(480, 720);
+            camera.position.z = 960;
 
             let controls = new THREE.OrbitControls(camera, cv);
+
+            // light
+            let ambientLight = new THREE.AmbientLight(0x606060);
+            scene.add(ambientLight);
+
 
             // floor (need to be on a server)
             let floorTexture = new THREE.TextureLoader().load('models/texture/floor.jpg');
             let floorMaterial = new THREE.MeshBasicMaterial({map: floorTexture, side: THREE.DoubleSide});
-			var floor = new THREE.Mesh(new THREE.PlaneGeometry(160, 160), floorMaterial);
+			var floor = new THREE.Mesh(new THREE.PlaneGeometry(640, 640), floorMaterial);
 		    floor.position.y = 0.0;
 		    floor.rotation.x = - Math.PI / 2;
 			floor.receiveShadow = true;
 			scene.add(floor);
             
-            //wall outside (+z:s, -z:n, +x:e, -x:w)
-            wallSL = new Wall(70, 40, -45, 20, 80, 0, 0, 0);
-            wallSR = new Wall(70, 40, 45, 20, 80, 0, 0, 0);
-            wallN = new Wall(160, 40, 0, 20, -80, 0, 0, 0);
-            wallE = new Wall(160, 40, 80, 20, 0, 0, 0.5, 0);
-            wallW = new Wall(160, 40, -80, 20, 0, 0, 0.5, 0);
+            //wall outside (+z:s, -z:n, +x:e, -x:w) D:door
+            let wallDepth = 8;
+            wallSL = new Wall(280, 160, wallDepth, -180, 80, 320, 0, 0, 0);
+            wallSR = new Wall(280, 160, wallDepth, 180, 80, 320, 0, 0, 0);
+            wallN = new Wall(640, 160, wallDepth, 0, 80, -320, 0, 0, 0);
+            wallE = new Wall(640, 160, wallDepth, 320, 80, 0, 0, 0.5, 0);
+            wallW = new Wall(640, 160, wallDepth, -320, 80, 0, 0, 0.5, 0);
+            //wall button
+            wallB = new Wall(360, 160, wallDepth, 140, 80, 160, 0, 0, 0);
             //wall left
-            wallL = new Wall(90, 40, -30, 20, 15, 0, 0.5, 0);
-            //wall top-left
-            wallTL = new Wall(90, 40, -35, 20, -30, 0, 0, 0);
-            //wall top-right
-            wallTRL = new Wall(100, 40, 30, 20, -30, 0, 0.5, 0);
-            wallTRBL = new Wall(20, 40, 40, 20, 20, 0, 0, 0);
-            wallTRBR = new Wall(20, 40, 70, 20, 20, 0, 0, 0);
-            //wall button-right
-            wallBR = new Wall(90, 40, 35, 20, 40, 0, 0, 0);
+            wallL = new Wall(360, 160, wallDepth, -120, 80, 60, 0, 0.5, 0);
+            //wall top
+            wallT = new Wall(360, 160, wallDepth, -140, 80, -120, 0, 0, 0);
+            //wall right
+            wallRL = new Wall(400, 160, wallDepth, 120, 80, -120, 0, 0.5, 0);
+            wallRDL = new Wall(80, 160, wallDepth, 160, 80, 80, 0, 0, 0);
+            wallRDR = new Wall(80, 160, wallDepth, 280, 80, 80, 0, 0, 0);
             //wall center
-            wallCT = new Wall(20, 40, 0, 20, -10, 0, 0, 0);
-            wallCL = new Wall(30, 40, -10, 20, 5, 0, 0.5, 0);
-            wallCR = new Wall(30, 40, 10, 20, 5, 0, 0.5, 0);
+            wallCT = new Wall(80, 160, wallDepth, 0, 80, -40, 0, 0, 0);
+            wallCL = new Wall(120, 160, wallDepth, -40, 80, 20, 0, 0.5, 0);
+            wallCR = new Wall(120, 160, wallDepth, 40, 80, 20, 0, 0.5, 0);
+
+            //chair
+            chairB = new Chair(80, 40, 4, 0, 35, 180);
+            chairL1 = new Chair(80, 40, 4, -220, 35, 0, true);
+            chairL2 = new Chair(80, 40, 4, -220, 35, 160, true);
+            chairT1 = new Chair(80, 40, 4, -200, 35, -220);
+            chairT2 = new Chair(80, 40, 4, -40, 35, -220);
+            chairR1 = new Chair(80, 40, 4, 220, 35, -200, true);
+            chairR2 = new Chair(80, 40, 4, 220, 35, -40, true);
+
+
         }
 
         function animate() {
