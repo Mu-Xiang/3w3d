@@ -7,26 +7,23 @@
     <meta name="author" content="MuXiang">
     <title>hw3</title>
 	<style type="text/css">
-		#content {
-
-        }
+		
 	</style>
 </head>
 
 <body style="background-color: rgb(255, 255, 220);">
-    <a href="../index.html" style="text-decoration: none">
-        <p style="text-align: center; font-size: 44px; font-weight: bold; color:rgb(20, 170, 120); margin: 2vh;">
-            HW3 室內設計模型
-        </p>
-    </a>
-    <hr>
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script type="text/javascript" src="https://threejs.org/build/three.min.js"></script>
     <script type="text/javascript" src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
     <script type="text/javascript">javascript: (function () { var script = document.createElement('script'); script.onload = function () { var stats = new Stats(); document.body.appendChild(stats.dom); requestAnimationFrame(function loop() { stats.update(); requestAnimationFrame(loop) }); }; script.src = 'https://mrdoob.github.io/stats.js/build/stats.min.js'; document.head.appendChild(script); })()</script>
 
     <div style="text-align:center; margin: 4vh 4vw;">
-        <canvas id="content" width=1080 height=720></canvas>
+        <a href="../index.html" style="text-decoration: none; position: absolute;">
+            <p style="text-align: center; font-size: 44px; font-weight: bold; color:rgb(0, 170, 120); margin: 2vh;">
+                HW3 室內設計模型
+            </p>
+        </a>
+        <canvas id="content"></canvas>
     </div>
     
     <script type="text/javascript">
@@ -37,7 +34,7 @@
             constructor(width, height, depth, x, y, z, rotationX, rotationY, rotationZ) {
                 //let wallTexture = new THREE.TextureLoader().load('models/texture/Wall.jpg');
                 let wallGeometry = new THREE.BoxGeometry(width + depth, height, depth);
-                let wallMaterial = new THREE.MeshBasicMaterial({color: 0xbbbbbb, side: THREE.DoubleSide});
+                let wallMaterial = new THREE.MeshBasicMaterial({color: 0xcccccc, side: THREE.DoubleSide});
                 let mesh = new THREE.Mesh(wallGeometry, wallMaterial);
                 mesh.position.set(x, y, z);
                 mesh.rotation.x = Math.PI * rotationX;
@@ -113,7 +110,7 @@
                 antialias: true,
                 canvas: cv
             });
-            renderer.setSize(cv.width, cv.height);
+            renderer.setSize(0.9 * window.innerWidth, 0.9 * window.innerHeight);
             renderer.setClearColor(0x888888);
 
             // camera
