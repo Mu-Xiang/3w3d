@@ -74,9 +74,70 @@
 
     <div class="mainBlock showBorder" id="mainContent">
     </div>
+
+    <div class="subBlock showBorder">
+        <hr>
+        <p class="blockTitle">功能</p>
+        <hr>
+        <input type="radio" name="radio" class="radio" id="place" checked="checked"><label class="radioText">放置</label><br>
+        <!--<input type="radio" name="radio" class="radio" id="move"><label class="radioText">移動</label><br>-->
+        <input type="radio" name="radio" class="radio" id="del"><label class="radioText">刪除</label><br>
+        <hr>
+        <p class="blockTitle">物件</p>
+        <hr>
+        <div style="height: 122px; width: 100%;">
+            <div class="block" style="float: left;">
+                <input type="radio" name="obj" class="radio" id="table" checked="checked"><label class="radioText">桌子</label><br>
+                <input type="radio" name="obj" class="radio" id="chair"><label class="radioText">椅子</label><br><br>
+                <label class="radioText">【圖片僅供參考】</label><br>
+            </div>
+            <div class="block" style="float: right;">
+                <img id="objImg" class="showBorder" src="images/table.jpg">
+            </div>
+        </div>
+        <script type="text/javascript">
+            function rChange() {
+                if ($('#place').is(':checked')){
+                    $('#table').attr("disabled", false);
+                    $('#chair').attr("disabled", false);
+                    placing = true;
+                } else {
+                    $('#table').attr("disabled", true);
+                    $('#chair').attr("disabled", true);
+                    placing = false;
+                }
+
+                if ($('#table').is(':checked')) {
+                    $('#objImg').attr("src", 'images/table.jpg');
+                    if (table != null) obj = table;
+                    type = 'table';
+                } else if ($('#chair').is(':checked')) {
+                    $('#objImg').attr("src", 'images/chair.jpg');
+                    if (chair != null) obj = chair;
+                    type = 'chair';
+                }
+            }
+            
+            $('.radio').click(rChange);
+        </script>
+
+        <hr>
+        <button id="save" class="btn">儲存</button>
+        <button id="clear" class="btn">清除</button>
+        <button id="load" class="btn">載入</button>
+        <hr>
+    </div>
+
     <script type="text/javascript">
 
         var scene, renderer, camera;
+
+        var floor;
+        var objs = [];
+        var type, types = []; // 1:table, 2:chair
+        var placing = true;
+        var mouse = new THREE.Vector2();
+        var raycaster = new THREE.Raycaster();
 
         init();
         animate();
@@ -96,29 +157,88 @@
             // scene
             scene = new THREE.Scene();
 
-            let gridXZ = new THREE.GridHelper(200, 20, 'yellow', 'white');
+            let gridXZ = new THREE.GridHelper(400, 1, 'yellow', 'white');
             scene.add(gridXZ);
-            let axes = new THREE.AxesHelper(160);
+            let axes = new THREE.AxesHelper(320);
             scene.add(axes);
 
             // camera
             camera = new THREE.PerspectiveCamera(45, dw / dh, 1, 1000);
-            camera.position.set(200, 100, 200);
+            camera.position.set(-400, 180, 100);
 
             let controls = new THREE.OrbitControls(camera, renderer.domElement);
 
             // light
-            let ambientLight = new THREE.AmbientLight(0x606060);
+            let ambientLight = new THREE.AmbientLight(0xbbbbbb);
             scene.add(ambientLight);
+
+            var textureLoader = new THREE.TextureLoader();
+
+            // grass
+            let grassTexture = textureLoader.load('images/grass.jpg');
+            let grassMaterial = new THREE.MeshLambertMaterial({
+                map: grassTexture,
+                side: THREE.DoubleSide,
+                transparent: true,
+                alphaMap: textureLoader.load('images/AlphaMaps/grassMap.png')
+            })
+            let grass = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), grassMaterial);
+            grass.position.y = 0.0;
+            grass.rotation.x = - Math.PI / 2;
+            grass.rotation.z = Math.PI * 1.5;
+            grass.receiveShadow = true;
+            scene.add(grass);
+
+            //road
+            let roadTexture = textureLoader.load('images/road.jpg');
+            let roadMaterial = new THREE.MeshLambertMaterial({
+                map: roadTexture,
+                side: THREE.DoubleSide,
+                transparent: true,
+                alphaMap: textureLoader.load('images/AlphaMaps/roadMap.png')
+            })
+            let road = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), roadMaterial);
+            road.position.y = 0.0;
+            road.rotation.x = - Math.PI / 2;
+            road.rotation.z = Math.PI * 1.5;
+            road.receiveShadow = true;
+            scene.add(road);
+
+            //floor
+            let floorTexture = textureLoader.load('images/floor2.jpg');
+            let floorMaterial = new THREE.MeshLambertMaterial({
+                map: floorTexture,
+                side: THREE.DoubleSide,
+                transparent: true,
+                alphaMap: textureLoader.load('images/AlphaMaps/floorMap.png')
+            })
+            floor = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), floorMaterial);
+            floor.position.y = 0.0;
+            floor.rotation.x = - Math.PI / 2;
+            floor.rotation.z = Math.PI * 1.5;
+            floor.receiveShadow = true;
+            scene.add(floor);
+
+            //obj
+            var tableGeo = new THREE.CylinderGeometry(20, 20, 25, 4);
+            var tableMaterial = new THREE.MeshBasicMaterial({color: 0x0022ff});
+            table = new THREE.Mesh(tableGeo, tableMaterial);
+            table.rotation.y = Math.PI * 0.25;
+            var chairGeo = new THREE.CylinderGeometry(15, 15, 10, 32);
+            var chairMaterial = new THREE.MeshBasicMaterial({color: 0xdddddd});
+            chair = new THREE.Mesh(chairGeo, chairMaterial);
+
+            obj = table.clone();
+            type = 'table';
 
             // listener
             window.addEventListener('resize', windowResize, false);
+            $('#mainContent').on("pointerdown", onMouseDown);
+            $('#mainContent').on("pointerup", onMouseUp);
+            $('#save').click(btnSave);
+            $('#clear').click(btnClear);
+            $('#load').click(btnLoad);
 
-        }
-
-        function animate() {
-            renderer.render(scene, camera);
-            requestAnimationFrame(animate);
         }
 
         function windowResize() {
@@ -129,53 +249,108 @@
             renderer.setSize(dw, dh);
         }
 
-    </script>
+        function onMouseDown(event) {
+            var viewportPos = $('#mainContent').get(0).getBoundingClientRect();
+            mouse.x = ((event.clientX - viewportPos.left) / $('#mainContent').innerWidth()) * 2 - 1;
+            mouse.y = -((event.clientY - viewportPos.top) / $('#mainContent').innerHeight()) * 2 + 1;
 
-    <div class="subBlock showBorder">
-        <hr>
-        <p class="blockTitle">功能</p>
-        <hr>
-        <input type="radio" name="radio" class="radio" id="place" checked="checked"><label class="radioText">放置</label><br>
-        <input type="radio" name="radio" class="radio" id="move"><label class="radioText">移動</label><br>
-        <input type="radio" name="radio" class="radio" id="del"><label class="radioText">刪除</label><br>
-        <hr>
-        <p class="blockTitle">物件</p>
-        <hr>
-        <div style="height: 122px; width: 100%;">
-            <div class="block" style="float: left;">
-                <input type="radio" name="obj" class="radio" id="table" checked="checked"><label class="radioText">桌子</label><br>
-                <input type="radio" name="obj" class="radio" id="chair"><label class="radioText">椅子</label><br>
-            </div>
-            <div class="block" style="float: right;">
-                <img id="objImg" class="showBorder" src="images/table.jpg">
-            </div>
-        </div>
-        <script type="text/javascript">
-            $('.radio').click(function(){
-                if ($('#place').is(':checked')){
-                    $('#table').attr("disabled", false);
-                    $('#chair').attr("disabled", false);
-                } else {
-                    $('#table').attr("disabled", true);
-                    $('#chair').attr("disabled", true);
-                }
+            raycaster.setFromCamera(mouse, camera);
 
-                if ($('#table').is(':checked')) {
-                    $('#objImg').attr("src", 'images/table.jpg');
-                } else if ($('#chair').is(':checked')) {
-                    $('#objImg').attr("src", 'images/chair.jpg');
+            if (placing === true) {
+                var intersects = raycaster.intersectObject(floor);
+                if (intersects.length > 0) {
+                    var newObj = obj.clone();
+                    newObj.position.copy(intersects[0].point);
+                    scene.add(newObj);
+                    objs.push(newObj);
+                    types.push(type);
                 }
+            } else {
+                var intersects = raycaster.intersectObjects(objs);
+                if (intersects.length > 0) {
+                    theObj = intersects[0].object;
+
+                    theObj.removeFromParent();
+
+                    for (let i = 0; i < objs.length; i++) {
+                        if (objs[i] === theObj) {
+                            objs.splice(i, 1);
+                            types.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        function onMouseUp(event) {
+            if (objs.length === 0) {
+                placing = true;
+                $('#place').prop('checked', true);
+                rChange();
+            }
+        }
+
+        function btnSave() {
+            
+            var store = [];
+            for (let i = 0; i < objs.length; i++) {
+                var element = {};
+                element.name = objs[i].name;
+                element.x = objs[i].position.x.toFixed(2);
+                element.z = objs[i].position.z.toFixed(2);
+                element.type = types[i];
+                
+                store.push(element);
+            }
+            console.log(store);
+
+            // puckRecs --> JSON.stringify --> localStorage
+            var recLog = JSON.stringify(store);
+            localStorage.setItem('objLog', recLog);
+
+            alert('Save');
+
+        }
+
+        function btnClear() {
+            
+            objs.forEach(element => {
+                element.removeFromParent();
             });
-        </script>
-        <hr>
-        <button id="save" class="btn">儲存</button>
-        <button id="clear" class="btn">清除</button>
-        <button id="load" class="btn">載入</button>
-        <script type="text/javascript">
+            objs = [];
+            types = [];
 
-        </script>
-        <hr>
-    </div>
+            $('#place').prop('checked', true);
+            rChange();
+
+            alert('Clear');
+
+        }
+
+        function btnLoad() {
+            
+            var parseLog = JSON.parse(localStorage.getItem('objLog'));
+            for (let i = 0; i < parseLog.length; i++) {
+                var newObj = parseLog[i].type === 'table' ? table.clone() : chair.clone();
+                newObj.position.set(parseLog[i].x, 0, parseLog[i].z);
+                scene.add(newObj);
+                objs.push(newObj);
+            }
+
+            alert('Load');
+        }
+
+        function animate() {
+            renderer.render(scene, camera);
+            requestAnimationFrame(animate);
+        }
+
+        function render() {
+            renderer.render(scene, camera);
+        }
+
+    </script>
 
 </body>
 
